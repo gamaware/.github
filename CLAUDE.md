@@ -31,7 +31,8 @@ It is not a profile repository; do not add `profile/README.md`.
 - No concurrency groups inside reusable workflows: they would use the caller's workflow name and cancel sibling
   calls. Callers set concurrency.
 - Keep job names stable; they are the required check names in every caller.
-- Any input change updates the README inputs table and `CHANGELOG.md` in the same pull request.
+- Any input change updates the inputs table in `docs/workflows.md`, `docs/toolchain.md` for versions, and
+  `CHANGELOG.md` in the same pull request.
 
 ## Git workflow
 

@@ -10,7 +10,7 @@ reviews:
         These are reusable workflows called by other repositories. Check that every action is pinned by full
         commit SHA, permissions are empty at workflow level and minimal per job, every job has timeout-minutes,
         expressions never appear inside run blocks, checkout disables persisted credentials, and downloaded
-        binaries are checksum-verified. Flag input changes that are not reflected in the README table.
+        binaries are checksum-verified. Flag input changes that are not reflected in the `docs/workflows.md` table.
     - path: "assets/social-preview/**/*.py"
       instructions: >-
         Standard library only. Check path handling, error messages and that the output stays 1280x640.
