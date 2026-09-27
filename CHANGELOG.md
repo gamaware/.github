@@ -15,3 +15,4 @@ This file records all notable changes to this repository. The format follows
 - Social preview generator for 1280x640 previews with vendored OFL fonts.
 - Repository CI (actionlint, zizmor, markdownlint, lychee, Vale, gitleaks, `make verify`), OpenSSF Scorecard and a
   weekly pre-commit hook update.
+- Toolchain table (`docs/toolchain.md`) with the tool versions every portfolio repository uses.

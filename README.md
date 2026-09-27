@@ -24,6 +24,7 @@ repository in the [AWS DevOps portfolio](https://github.com/gamaware/aws-devops-
   [`scorecard.yml`](.github/workflows/scorecard.yml)
 - Social preview generator: [`assets/social-preview/render.py`](assets/social-preview/render.py)
 - Decisions: [`docs/adr/`](docs/adr/README.md)
+- Pinned tool versions for the whole portfolio: [`docs/toolchain.md`](docs/toolchain.md)
 
 ## Architecture
 
@@ -51,7 +52,7 @@ inputs to shell steps only through environment variables. Source: [`docs/diagram
 | `lint-actions.yml` | `actionlint`, `zizmor` | `zizmor-persona` (string, `regular`), `zizmor-min-severity` (string, `low`), `zizmor-version` (string, `1.30.1`) |
 | `secrets.yml` | `gitleaks` | `scan-history` (bool, true), `gitleaks-config` (string, empty: `.gitleaks.toml` if present) |
 | `security.yml` | `semgrep`, `trivy`, `checkov` | `run-semgrep` (bool, true), `semgrep-config` (string, `p/default`), `run-trivy` (bool, true), `trivy-severity` (string, `HIGH,CRITICAL`), `trivy-skip-dirs` (string, empty), `run-checkov` (bool, true), `checkov-config` (string, `.checkov.yaml`) |
-| `terraform.yml` | `fmt`, `validate (<dir>)` | `working-directories` (JSON array string, `["."]`), `terraform-version` (string, `1.16.4`), `tflint-version` (string, `v0.64.0`), `run-tests` (bool, true) |
+| `terraform.yml` | `fmt`, `validate (<dir>)` | `working-directories` (JSON array string, `["."]`), `terraform-version` (string, `1.14.5`), `tflint-version` (string, `v0.64.0`), `run-tests` (bool, true) |
 | `container.yml` | `hadolint`, `build-scan` | `context` (string, `.`), `dockerfile` (string, `Dockerfile`), `image-name` (string, `app`), `trivy-severity` (string, `HIGH,CRITICAL`), `trivy-ignore-unfixed` (bool, true) |
 | `helm.yml` | `chart (<dir>)` | `charts` (JSON array string, `["charts"]`), `helm-version` (string, `v4.3.0`), `kubernetes-version` (string, `1.34.0`), `ignore-missing-schemas` (bool, false) |
 | `report.yml` | `pdf`, `evidence` | `report-path` (string, `report/REPORT.md`), `pandoc-args` (string), `artifact-name` (string, `report-pdf`), `evidence-command` (string, empty skips), `evidence-path` (string, `evidence`), `python-version` (string, `3.13`) |
@@ -171,9 +172,9 @@ A spec is JSON with paths relative to the spec file:
 
 ## Verify locally
 
-Prerequisites: Python 3.13, pre-commit 4.6.2 and Git. Hook tools (actionlint, zizmor, gitleaks, markdownlint-cli2,
-yamllint, shellcheck, shellharden, ruff) install through pre-commit on first run; shellharden builds with a Rust
-toolchain that pre-commit bootstraps if needed.
+Prerequisites: Python 3.13, pre-commit 4.6.2 and Git ([toolchain](docs/toolchain.md)). Hook tools (actionlint,
+zizmor, gitleaks, markdownlint-cli2, yamllint, shellcheck, shellharden, ruff) install through pre-commit on first run;
+shellharden builds with a Rust toolchain that pre-commit bootstraps if needed.
 
 ```bash
 pre-commit install --install-hooks
@@ -202,6 +203,7 @@ later runs take under 30 seconds. `make vale` runs the prose check that CI runs 
 ├── assets/social-preview/       render.py, vendored fonts, example spec and output
 ├── docs/
 │   ├── adr/                     architecture decision records
+│   ├── toolchain.md             pinned tool versions for every repository
 │   └── diagrams/                Mermaid source and exported SVG
 ├── CODE_OF_CONDUCT.md           Contributor Covenant 2.1
 ├── CONTRIBUTING.md              workflow and conventions for all repositories
