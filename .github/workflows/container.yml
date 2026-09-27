@@ -1,0 +1,104 @@
+name: container
+
+on:
+  workflow_call:
+    inputs:
+      context:
+        description: Docker build context.
+        type: string
+        default: "."
+      dockerfile:
+        description: Path to the Dockerfile, relative to the repository root.
+        type: string
+        default: Dockerfile
+      image-name:
+        description: Local image name used for the scan. The image is never pushed.
+        type: string
+        default: app
+      trivy-severity:
+        description: Comma-separated Trivy severities that fail the job.
+        type: string
+        default: HIGH,CRITICAL
+      trivy-ignore-unfixed:
+        description: Ignore vulnerabilities without a released fix.
+        type: boolean
+        default: true
+
+permissions: {}
+
+env:
+  HADOLINT_VERSION: "2.15.1"
+  HADOLINT_SHA256: c7187db94eeeeca956519a6af171adc31453941a1e777961f6e680f697c8c507
+  TRIVY_VERSION: "0.74.0"
+  TRIVY_SHA256: 2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a
+
+jobs:
+  hadolint:
+    name: hadolint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read # checkout
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install hadolint
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -fsSL -o "$RUNNER_TEMP/bin/hadolint" \
+            "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-linux-x86_64"
+          echo "${HADOLINT_SHA256}  $RUNNER_TEMP/bin/hadolint" | sha256sum --check --strict
+          chmod +x "$RUNNER_TEMP/bin/hadolint"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Run hadolint
+        env:
+          DOCKERFILE: ${{ inputs.dockerfile }}
+        run: hadolint "$DOCKERFILE"
+
+  build-scan:
+    name: build-scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read # checkout
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
+          tags: local/${{ inputs.image-name }}:ci
+          load: true
+          push: false
+          provenance: false
+
+      - name: Install Trivy
+        run: |
+          set -euo pipefail
+          archive="trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          curl -fsSL -o "$RUNNER_TEMP/$archive" \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/${archive}"
+          echo "${TRIVY_SHA256}  $RUNNER_TEMP/$archive" | sha256sum --check --strict
+          mkdir -p "$RUNNER_TEMP/bin"
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/bin" trivy
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Run Trivy image scan
+        env:
+          IMAGE_NAME: ${{ inputs.image-name }}
+          TRIVY_SEVERITY: ${{ inputs.trivy-severity }}
+          TRIVY_IGNORE_UNFIXED: ${{ inputs.trivy-ignore-unfixed }}
+        run: trivy image --exit-code 1 --no-progress "local/${IMAGE_NAME}:ci"

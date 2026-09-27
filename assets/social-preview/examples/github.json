@@ -1,0 +1,11 @@
+{
+  "color": "#1F2A44",
+  "heading": ["Shared workflows &", "community files"],
+  "subtitle": "workflow_call · pinned by SHA · least privilege",
+  "steps": [
+    {"label": "Lint docs and workflows"},
+    {"label": "Scan secrets, code and IaC"},
+    {"label": "Validate Terraform, Helm, images"}
+  ],
+  "illustration": "github-illustration.svg"
+}

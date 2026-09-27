@@ -1,0 +1,109 @@
+name: terraform
+
+on:
+  workflow_call:
+    inputs:
+      working-directories:
+        description: >-
+          JSON array of Terraform root or module directories to validate,
+          for example '["modules/vpc", "envs/dev"]'.
+        type: string
+        default: '["."]'
+      terraform-version:
+        description: Terraform version for setup-terraform.
+        type: string
+        default: "1.16.4"
+      tflint-version:
+        description: TFLint version for setup-tflint.
+        type: string
+        default: v0.64.0
+      run-tests:
+        description: Run terraform test in directories that contain *.tftest.hcl files.
+        type: boolean
+        default: true
+
+permissions: {}
+
+jobs:
+  fmt:
+    name: fmt
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read # checkout
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
+          terraform_wrapper: false
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive -diff
+
+  validate:
+    name: validate (${{ matrix.directory }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read # checkout
+    strategy:
+      fail-fast: false
+      matrix:
+        directory: ${{ fromJSON(inputs.working-directories) }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
+          terraform_wrapper: false
+
+      - name: Set up TFLint
+        uses: terraform-linters/setup-tflint@1cf010d3c7aef302051ccdb68c14c5dc2efa34ef # v6.3.1
+        with:
+          tflint_version: ${{ inputs.tflint-version }}
+
+      - name: Init without backend
+        env:
+          TF_DIR: ${{ matrix.directory }}
+        run: terraform -chdir="$TF_DIR" init -backend=false -input=false
+
+      - name: Validate
+        env:
+          TF_DIR: ${{ matrix.directory }}
+        run: terraform -chdir="$TF_DIR" validate -no-color
+
+      - name: Run TFLint
+        env:
+          TF_DIR: ${{ matrix.directory }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          args=(--chdir="$TF_DIR" --format=compact)
+          if [ -f .tflint.hcl ]; then
+            args+=(--config="$GITHUB_WORKSPACE/.tflint.hcl")
+          fi
+          tflint --init "${args[@]}"
+          tflint "${args[@]}"
+
+      - name: Run terraform test
+        if: inputs.run-tests
+        env:
+          TF_DIR: ${{ matrix.directory }}
+        run: |
+          set -euo pipefail
+          if find "$TF_DIR" -maxdepth 2 -name '*.tftest.hcl' -not -path '*/.terraform/*' | grep -q .; then
+            terraform -chdir="$TF_DIR" test -no-color
+          else
+            echo "No *.tftest.hcl files in $TF_DIR; skipping terraform test"
+          fi
