@@ -1,0 +1,15 @@
+<rect x="224" y="72" width="280" height="112"/>
+<text x="248" y="118" stroke="none" fill="#FFFFFF">gamaware/.github</text>
+<text x="248" y="152" stroke="none" fill="#FFFFFF" fill-opacity=".7">on: workflow_call</text>
+<path d="M364,184 V272 M128,272 H600 M128,272 V352 M364,272 V352 M600,272 V352"/>
+<circle cx="364" cy="272" r="6" fill="#FFFFFF"/>
+<rect x="48" y="352" width="160" height="96"/>
+<rect x="284" y="352" width="160" height="96"/>
+<rect x="520" y="352" width="160" height="96"/>
+<text x="64" y="392" stroke="none" fill="#FFFFFF">lab</text>
+<text x="300" y="392" stroke="none" fill="#FFFFFF">sample</text>
+<text x="536" y="392" stroke="none" fill="#FFFFFF">labs</text>
+<path d="M64,420 H188 M300,420 H424 M536,420 H660" stroke-opacity=".55"/>
+<rect x="238" y="520" width="252" height="56" rx="28" stroke="#FFC34D" stroke-width="3"/>
+<text x="364" y="555" text-anchor="middle" stroke="none" fill="#FFC34D">uses: …@&lt;sha&gt;</text>
+<path d="M364,448 V520" stroke="#FFC34D" stroke-dasharray="6 8"/>

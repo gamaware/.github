@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/gamaware/.github/blob/main/SECURITY.md
+    about: Report vulnerabilities privately through a GitHub security advisory, never in a public issue.
+  - name: Portfolio index
+    url: https://github.com/gamaware/aws-devops-portfolio
+    about: Overview of every lab and sample deliverable.

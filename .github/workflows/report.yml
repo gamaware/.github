@@ -1,0 +1,104 @@
+name: report
+
+on:
+  workflow_call:
+    inputs:
+      report-path:
+        description: Canonical Markdown report.
+        type: string
+        default: report/REPORT.md
+      pandoc-args:
+        description: Extra space-separated pandoc arguments.
+        type: string
+        default: --pdf-engine=xelatex -V geometry:margin=2.2cm --toc
+      artifact-name:
+        description: Name of the uploaded PDF artifact.
+        type: string
+        default: report-pdf
+      evidence-command:
+        description: Command that regenerates evidence from the repository's scripts. Empty skips the check.
+        type: string
+        default: ""
+      evidence-path:
+        description: Directory the evidence command writes to. The job fails when it differs from the commit.
+        type: string
+        default: evidence
+      python-version:
+        description: Python version available to the evidence command.
+        type: string
+        default: "3.13"
+
+permissions: {}
+
+env:
+  PANDOC_IMAGE: pandoc/latex:3.11@sha256:cdbf139f607237498b412b3aa051008311d69b88006ab47550efba357af3b277
+
+jobs:
+  pdf:
+    name: pdf
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read # checkout
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build PDF with pandoc
+        env:
+          REPORT_PATH: ${{ inputs.report-path }}
+          PANDOC_ARGS: ${{ inputs.pandoc-args }}
+        run: |
+          set -euo pipefail
+          read -ra extra <<< "$PANDOC_ARGS"
+          report_dir="$(dirname "$REPORT_PATH")"
+          mkdir -p "$RUNNER_TEMP/out"
+          docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
+            -v "$PWD:/data" -v "$RUNNER_TEMP/out:/out" -w "/data/$report_dir" \
+            "$PANDOC_IMAGE" "$(basename "$REPORT_PATH")" "${extra[@]}" -o /out/REPORT.pdf
+          test -s "$RUNNER_TEMP/out/REPORT.pdf"
+
+      - name: Upload PDF
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ runner.temp }}/out/REPORT.pdf
+          if-no-files-found: error
+          retention-days: 14
+
+  evidence:
+    name: evidence
+    if: inputs.evidence-command != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read # checkout
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Regenerate evidence
+        env:
+          EVIDENCE_COMMAND: ${{ inputs.evidence-command }}
+        run: bash -euo pipefail -c "$EVIDENCE_COMMAND"
+
+      - name: Check evidence matches the commit
+        env:
+          EVIDENCE_PATH: ${{ inputs.evidence-path }}
+        run: |
+          set -euo pipefail
+          untracked="$(git ls-files --others --exclude-standard -- "$EVIDENCE_PATH")"
+          if ! git diff --exit-code --stat -- "$EVIDENCE_PATH" || [ -n "$untracked" ]; then
+            echo "$untracked"
+            echo "::error::Evidence in $EVIDENCE_PATH is not reproducible from the committed scripts"
+            exit 1
+          fi

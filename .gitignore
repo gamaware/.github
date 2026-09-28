@@ -1,0 +1,24 @@
+# Secrets
+.env
+.env.local
+*.pem
+*.key
+credentials.json
+
+# Vale packages (downloaded by vale sync)
+styles/
+
+# Tooling
+__pycache__/
+.venv/
+.ruff_cache/
+.firecrawl/
+.DS_Store
+
+# Local agent tooling state
+.claude-flow/
+.claude/proven-config*
+.claude/.proven-config-version
+
+# Social preview build output
+assets/social-preview/build/

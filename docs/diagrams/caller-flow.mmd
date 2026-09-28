@@ -1,0 +1,8 @@
+flowchart LR
+  ci["Caller repository<br/>ci.yml, a thin caller"]
+  wf["gamaware/.github<br/>lint-docs · lint-actions · secrets<br/>security · terraform · container<br/>helm · report"]
+  checks["Pull request checks<br/>lint-docs / markdownlint, …"]
+  dep["Dependabot"]
+  ci -- "uses: …@sha<br/>contents: read" --> wf
+  wf -- "jobs with per-job<br/>permissions and timeouts" --> checks
+  dep -. "bumps SHA<br/>on a new tag" .-> ci
