@@ -180,31 +180,37 @@ def chrome():
 def render(spec_path, out_path):
     spec = load_spec(spec_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.unlink(missing_ok=True)
+    # Render to a temporary file; the existing preview is replaced only on success.
     with tempfile.TemporaryDirectory() as tmp:
         src = pathlib.Path(tmp) / "preview.html"
+        shot = pathlib.Path(tmp) / "preview.png"
         src.write_text(page(spec))
-        result = subprocess.run(
-            [
-                chrome(),
-                "--headless=new",
-                "--disable-gpu",
-                "--hide-scrollbars",
-                "--allow-file-access-from-files",
-                "--force-device-scale-factor=1",
-                f"--window-size={WIDTH},{HEIGHT}",
-                "--virtual-time-budget=3000",
-                f"--screenshot={out_path.resolve()}",
-                src.as_uri(),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-    if result.returncode != 0 or not out_path.is_file():
-        raise SystemExit(
-            f"Chrome failed to render {out_path} (exit {result.returncode}):\n{result.stderr}"
-        )
+        try:
+            result = subprocess.run(
+                [
+                    chrome(),
+                    "--headless=new",
+                    "--disable-gpu",
+                    "--hide-scrollbars",
+                    "--allow-file-access-from-files",
+                    "--force-device-scale-factor=1",
+                    f"--window-size={WIDTH},{HEIGHT}",
+                    "--virtual-time-budget=3000",
+                    f"--screenshot={shot}",
+                    src.as_uri(),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=120,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise SystemExit(f"Chrome timed out rendering {out_path}") from exc
+        if result.returncode != 0 or not shot.is_file():
+            raise SystemExit(
+                f"Chrome failed to render {out_path} (exit {result.returncode}):\n{result.stderr}"
+            )
+        shutil.move(shot, out_path)
 
 
 def main(argv):

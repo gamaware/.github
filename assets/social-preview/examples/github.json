@@ -1,7 +1,7 @@
 {
   "color": "#1F2A44",
   "heading": ["Shared workflows &", "community files"],
-  "subtitle": "workflow_call · pinned by SHA · least privilege",
+  "subtitle": "workflow_call · pinned by SHA · scoped permissions",
   "steps": [
     {"label": "Lint docs and workflows"},
     {"label": "Scan secrets, code and IaC"},

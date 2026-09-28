@@ -102,7 +102,10 @@ jobs:
           TF_DIR: ${{ matrix.directory }}
         run: |
           set -euo pipefail
-          if find "$TF_DIR" -maxdepth 2 -name '*.tftest.hcl' -not -path '*/.terraform/*' | grep -q .; then
+          # The locations terraform test loads by default: the root and tests/.
+          shopt -s nullglob
+          test_files=("$TF_DIR"/*.tftest.hcl "$TF_DIR"/tests/*.tftest.hcl)
+          if [ "${#test_files[@]}" -gt 0 ]; then
             terraform -chdir="$TF_DIR" test -no-color
           else
             echo "No *.tftest.hcl files in $TF_DIR; skipping terraform test"

@@ -3,7 +3,8 @@
 This repository holds reusable GitHub Actions workflows that other repositories call by commit SHA, plus community
 health files and a social preview generator. When reviewing pull requests:
 
-- Every `uses:` reference names a full 40-character commit SHA with a version comment.
+- Every `uses:` reference to another repository names a full 40-character commit SHA with a version comment. Local
+  `./.github/workflows/` calls in `ci.yml` cannot take a ref; they run the files of the commit under test.
 - Every workflow sets `permissions: {}` at the top level and grants the minimum per job, with a comment for each grant.
 - Every job has `timeout-minutes`.
 - No `${{ }}` expression appears inside a `run:` block; inputs and event data reach shell steps through `env:`.
