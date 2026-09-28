@@ -1,0 +1,6 @@
+rules:
+  # ci.yml calls this repository's reusable workflows with "./" so pull requests test the changed files.
+  # actionlint (v1.7.12, the latest release) rejects the "$/" self-repository form, so the two tools cannot both
+  # pass. Remove this block once actionlint accepts "$/" and switch ci.yml to it.
+  self-repository:
+    disable: true

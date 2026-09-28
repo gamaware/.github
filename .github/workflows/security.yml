@@ -1,0 +1,135 @@
+name: security
+
+on:
+  workflow_call:
+    inputs:
+      run-semgrep:
+        description: Run Semgrep SAST.
+        type: boolean
+        default: true
+      semgrep-config:
+        description: Space-separated Semgrep configs (registry packs or local paths).
+        type: string
+        default: p/default
+      run-trivy:
+        description: Run Trivy on the repository (vulnerabilities, secrets, misconfigurations).
+        type: boolean
+        default: true
+      trivy-severity:
+        description: Comma-separated Trivy severities that fail the job.
+        type: string
+        default: HIGH,CRITICAL
+      trivy-skip-dirs:
+        description: Comma-separated directories Trivy skips. Intentional fixtures belong in .trivyignore instead.
+        type: string
+        default: ""
+      run-checkov:
+        description: Run Checkov on IaC.
+        type: boolean
+        default: true
+      checkov-config:
+        description: Checkov config file supplied by the repository. Used only when the file exists.
+        type: string
+        default: .checkov.yaml
+
+permissions: {}
+
+env:
+  SEMGREP_IMAGE: semgrep/semgrep:1.178.0@sha256:32e459968daabe7ab86968184a29109b9564aa00392401156f9788452b42786b
+  TRIVY_VERSION: "0.74.0"
+  TRIVY_SHA256: 2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a
+  CHECKOV_VERSION: "3.3.19"
+
+jobs:
+  semgrep:
+    name: semgrep
+    if: inputs.run-semgrep
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read # checkout
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run Semgrep
+        env:
+          SEMGREP_CONFIGS: ${{ inputs.semgrep-config }}
+        run: |
+          set -euo pipefail
+          args=()
+          read -ra configs <<< "$SEMGREP_CONFIGS"
+          for config in "${configs[@]}"; do
+            args+=(--config "$config")
+          done
+          docker run --rm -v "$PWD:/src" -w /src "$SEMGREP_IMAGE" \
+            semgrep scan --error --metrics=off "${args[@]}"
+
+  trivy:
+    name: trivy
+    if: inputs.run-trivy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read # checkout
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Trivy
+        run: |
+          set -euo pipefail
+          archive="trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          curl -fsSL -o "$RUNNER_TEMP/$archive" \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/${archive}"
+          echo "${TRIVY_SHA256}  $RUNNER_TEMP/$archive" | sha256sum --check --strict
+          mkdir -p "$RUNNER_TEMP/bin"
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/bin" trivy
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Run Trivy filesystem scan
+        env:
+          TRIVY_SEVERITY: ${{ inputs.trivy-severity }}
+          TRIVY_SKIP_DIRS: ${{ inputs.trivy-skip-dirs }}
+        run: |
+          set -euo pipefail
+          if [ -z "$TRIVY_SKIP_DIRS" ]; then
+            unset TRIVY_SKIP_DIRS
+          fi
+          trivy fs --scanners vuln,secret,misconfig --exit-code 1 --no-progress .
+
+  checkov:
+    name: checkov
+    if: inputs.run-checkov
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read # checkout
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Install Checkov
+        run: python -m pip install --disable-pip-version-check "checkov==${CHECKOV_VERSION}"
+
+      - name: Run Checkov
+        env:
+          CHECKOV_CONFIG: ${{ inputs.checkov-config }}
+        run: |
+          set -euo pipefail
+          if [ -n "$CHECKOV_CONFIG" ] && [ -f "$CHECKOV_CONFIG" ]; then
+            checkov --config-file "$CHECKOV_CONFIG"
+          else
+            checkov --directory . --quiet --compact
+          fi

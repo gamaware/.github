@@ -1,0 +1,19 @@
+# Secrets
+.env
+.env.local
+*.pem
+*.key
+credentials.json
+
+# Vale packages (downloaded by vale sync)
+styles/
+
+# Tooling
+__pycache__/
+.venv/
+.ruff_cache/
+.firecrawl/
+.DS_Store
+
+# Social preview build output
+assets/social-preview/build/
