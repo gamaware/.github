@@ -38,7 +38,7 @@ Acceptance criteria:
 
 - Every caller references a reusable workflow by full commit SHA and grants only `contents: read`.
 - Required check names, such as `lint-docs / markdownlint`, are identical across repositories.
-- No workflow needs a secret or cloud credentials.
+- Reusable validation workflows require no caller-supplied secrets or AWS credentials.
 - Every downloaded binary passes a SHA-256 check, and every job has a timeout.
 - `make verify` passes locally and in CI.
 

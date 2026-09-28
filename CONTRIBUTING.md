@@ -15,7 +15,8 @@ its own `CONTRIBUTING.md`.
    `feat/new-check`.
 2. Install the hooks once: `pre-commit install --install-hooks` and
    `pre-commit install --hook-type commit-msg`.
-3. Make the change and run `make verify`. It runs the same checks as CI.
+3. Make the change and run `make verify`. CI runs the same command, plus the shared reusable workflows
+   (link check, secret scan and security scanners) that the repository's `ci.yml` calls.
 4. Open a pull request and fill in every section of the template, including the evidence.
 
 ## Conventions
