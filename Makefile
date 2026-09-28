@@ -3,6 +3,7 @@
 # Same command locally and in CI. no-commit-to-branch only guards local commits.
 verify:
 	SKIP=no-commit-to-branch pre-commit run --all-files --show-diff-on-failure
+	@echo "verify: all checks passed"
 
 vale:
 	vale sync
