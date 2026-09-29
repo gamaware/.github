@@ -18,9 +18,10 @@ Behavior worth knowing before calling them:
 
 - `lint-docs` reads the caller's `.markdownlint.yaml` and `.vale.ini`; `run-vale: true` fails when `.vale.ini` is
   missing.
-- `security` runs Checkov with `--config-file` when `checkov-config` exists (the file must set `directory`), otherwise
-  on the whole repository. Trivy honors the caller's `.trivyignore`. Declare intentional fixtures there or in the
-  Checkov config; never skip them wholesale.
+- `security` runs Checkov with `--config-file` when `checkov-config` exists and scans the `directory` or `file` it
+  sets; a config that sets neither gets `--directory .`. Without a config, Checkov scans the whole repository.
+  Trivy honors the caller's `.trivyignore`. Declare intentional fixtures there or in the Checkov config; never skip
+  them wholesale.
 - `terraform` runs `init -backend=false`, so it never needs cloud credentials. `terraform test` runs only in
   directories with `*.tftest.hcl` files; use mock providers for them. TFLint reads `.tflint.hcl` from the root.
 - `container` builds with `load: true` and never pushes. Hadolint reads the caller's `.hadolint.yaml`.

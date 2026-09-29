@@ -130,7 +130,7 @@ jobs:
           set -euo pipefail
           if [ -n "$CHECKOV_CONFIG" ] && [ -f "$CHECKOV_CONFIG" ]; then
             # Without a directory or file in the config, Checkov would scan nothing and pass.
-            if grep -Eq '^(directory|file):' "$CHECKOV_CONFIG"; then
+            if grep -Eq '^[[:space:]]*(directory|file):' "$CHECKOV_CONFIG"; then
               checkov --config-file "$CHECKOV_CONFIG"
             else
               checkov --config-file "$CHECKOV_CONFIG" --directory .

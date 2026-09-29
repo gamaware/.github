@@ -210,7 +210,21 @@ def render(spec_path, out_path):
             raise SystemExit(
                 f"Chrome failed to render {out_path} (exit {result.returncode}):\n{result.stderr}"
             )
-        shutil.move(shot, out_path)
+        # Stage beside out_path so the final swap is an atomic same-filesystem rename.
+        fd, staged = tempfile.mkstemp(
+            dir=out_path.parent, prefix=f".{out_path.name}.", suffix=".tmp"
+        )
+        os.close(fd)
+        try:
+            shutil.copyfile(shot, staged)
+            # mkstemp creates the file as 0600; apply the usual umask-based mode.
+            umask = os.umask(0)
+            os.umask(umask)
+            os.chmod(staged, 0o666 & ~umask)
+            os.replace(staged, out_path)
+        except BaseException:
+            pathlib.Path(staged).unlink(missing_ok=True)
+            raise
 
 
 def main(argv):
