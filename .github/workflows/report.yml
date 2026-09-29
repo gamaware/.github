@@ -97,7 +97,8 @@ jobs:
         run: |
           set -euo pipefail
           untracked="$(git ls-files --others --exclude-standard -- "$EVIDENCE_PATH")"
-          if ! git diff --exit-code --stat -- "$EVIDENCE_PATH" || [ -n "$untracked" ]; then
+          # Against HEAD, so evidence the command staged still counts as a change.
+          if ! git diff HEAD --exit-code --stat -- "$EVIDENCE_PATH" || [ -n "$untracked" ]; then
             echo "$untracked"
             echo "::error::Evidence in $EVIDENCE_PATH is not reproducible from the committed scripts"
             exit 1

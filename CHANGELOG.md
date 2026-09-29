@@ -16,3 +16,10 @@ This file records all notable changes to this repository. The format follows
 - Repository CI (actionlint, zizmor, markdownlint, lychee, Vale, gitleaks, `make verify`), OpenSSF Scorecard and a
   weekly pre-commit hook update.
 - Toolchain table (`docs/toolchain.md`) with the tool versions every portfolio repository uses.
+
+### Fixed
+
+- `report`: the evidence check compares against `HEAD`, so evidence the command staged still fails the check.
+- `security`: a Checkov config file with no `directory` or `file` key scans the repository instead of nothing.
+- `terraform`: `terraform test` runs when test files exist where Terraform loads them (the root or `tests/`).
+- Social preview generator: renders to a temporary file with a timeout and replaces the output only on success.
