@@ -15,10 +15,5 @@ __pycache__/
 .firecrawl/
 .DS_Store
 
-# Local agent tooling state
-.claude-flow/
-.claude/proven-config*
-.claude/.proven-config-version
-
 # Social preview build output
 assets/social-preview/build/
