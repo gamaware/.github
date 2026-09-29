@@ -17,7 +17,7 @@ A spec is JSON with paths relative to the spec file:
 {
   "color": "#146C43",
   "heading": ["GitHub Actions to AWS", "without stored keys"],
-  "subtitle": "OIDC · least-privilege role · security gates",
+  "subtitle": "OIDC · scoped deploy role · security gates",
   "steps": [
     {"label": "Trust policy", "icon": "icons/role.svg"},
     {"label": "Scoped deploy role"},
