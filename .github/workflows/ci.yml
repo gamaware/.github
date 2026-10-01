@@ -54,3 +54,24 @@ jobs:
 
       - name: Run make verify
         run: make verify
+
+  test-helm:
+    name: test-helm
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read # checkout
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: v4.3.0
+
+      # yq ships with the ubuntu-24.04 runner image, as helm.yml already assumes.
+      - name: Run helm workflow tests
+        run: make test-helm

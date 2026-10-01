@@ -83,10 +83,8 @@ jobs:
             kc_args+=(-ignore-missing-schemas)
           fi
           shopt -s nullglob
-          values_files=("$CHART"/ci/*-values.yaml)
-          if [ "${#values_files[@]}" -eq 0 ]; then
-            values_files=("")
-          fi
+          # The empty entry checks the chart's own values.yaml, then each CI values file.
+          values_files=("" "$CHART"/ci/*-values.yaml)
           for values in "${values_files[@]}"; do
             values_args=()
             if [ -n "$values" ]; then
