@@ -73,7 +73,9 @@ make verify
 ```
 
 Expected output: every hook reports `Passed`. The first run takes a few minutes while hook environments install;
-later runs take under 30 seconds. `make vale` runs the prose check that CI runs in `lint-docs`.
+later runs take under 30 seconds. `make vale` runs the prose check that CI runs in `lint-docs`. `make test-helm` runs
+the `helm` workflow's lint step against the fixture charts in `tests/helm/` (needs `helm` and `yq`), as the
+`test-helm` CI job does.
 
 ## Repository map
 
@@ -95,7 +97,8 @@ later runs take under 30 seconds. `make vale` runs the prose check that CI runs 
 ├── CONTRIBUTING.md              workflow and conventions for all repositories
 ├── SECURITY.md                  private reporting through security advisories
 ├── SUPPORT.md                   where to ask for help
-└── Makefile                     make verify, make vale, make preview
+├── tests/helm/                  fixture charts and the helm workflow test
+└── Makefile                     make verify, make vale, make preview, make test-helm
 ```
 
 ## Decisions and trade-offs

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: defaults-invalid
+description: Test fixture whose CI values are valid and whose default values break the schema.
+type: application
+version: 0.1.0
+icon: https://example.com/icon.png
