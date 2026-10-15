@@ -24,7 +24,7 @@ repository in the [AWS DevOps portfolio](https://github.com/gamaware/aws-devops-
   [`scorecard.yml`](.github/workflows/scorecard.yml)
 - Social preview generator: [`assets/social-preview/render.py`](assets/social-preview/render.py)
 - Workflow reference (jobs, inputs, calling pattern, release steps): [`docs/workflows.md`](docs/workflows.md)
-- Social preview spec format and offer colors: [`docs/social-preview.md`](docs/social-preview.md)
+- Social preview spec format and service colors: [`docs/social-preview.md`](docs/social-preview.md)
 - Pinned tool versions for the whole portfolio: [`docs/toolchain.md`](docs/toolchain.md)
 - Decisions: [`docs/adr/`](docs/adr/README.md)
 
@@ -88,7 +88,7 @@ later runs take under 30 seconds. `make vale` runs the prose check that CI runs 
 ├── docs/
 │   ├── adr/                     architecture decision records
 │   ├── diagrams/                Mermaid source and exported SVG
-│   ├── social-preview.md        preview spec format and offer colors
+│   ├── social-preview.md        preview spec format and service colors
 │   ├── toolchain.md             pinned tool versions for every repository
 │   └── workflows.md             reusable workflow reference and calling pattern
 ├── CODE_OF_CONDUCT.md           Contributor Covenant 2.1

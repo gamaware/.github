@@ -30,11 +30,11 @@ A spec is JSON with paths relative to the spec file:
 
 - `heading` takes one to three lines; `steps` takes exactly three, each with an optional 48 px icon.
 - `illustration` is an SVG fragment for a `0 0 728 640` viewBox. The generator adds the blueprint grid, crop marks,
-  white 2.5 px round strokes and JetBrains Mono 18 px text, so the same fragments used for Upwork covers render
-  unchanged. Use `#FFC34D` (amber) for the single highlighted element.
-- `color` is the offer's cover color:
+  white 2.5 px round strokes and JetBrains Mono 18 px text, so the same fragments render unchanged in every
+  repository. Use `#FFC34D` (amber) for the single highlighted element.
+- `color` is the block color for each service:
 
-| Offer | Color |
+| Service | Color |
 | --- | --- |
 | Terraform on AWS audit and fix | `#844FBA` |
 | CI/CD pipeline to AWS | `#146C43` |
