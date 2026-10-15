@@ -6,7 +6,7 @@ Usage: render.py SPEC.json OUTPUT.png
 The spec is JSON; relative paths in it resolve against the spec's directory:
 
     {
-      "color": "#146C43",                      block color, same as the offer's cover
+      "color": "#146C43",                      block color, one per service
       "heading": ["Line one", "line two"],     one to three lines
       "subtitle": "Short · dotted · summary",
       "steps": [{"label": "First step", "icon": "icons/a.svg"}, ...],   exactly three; icon optional

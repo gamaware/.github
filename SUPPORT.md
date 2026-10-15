@@ -7,5 +7,5 @@ These repositories are portfolio labs and fictional sample deliverables. They co
 - **Something broken:** open an issue with the bug template and include the command you ran, the tool versions and
   the full output.
 - **Security problem:** report it privately as described in [SECURITY.md](SECURITY.md).
-- **Paid work based on these repositories:** see the service catalog linked from
+- **Work based on these repositories:** see the service index in
   [aws-devops-portfolio](https://github.com/gamaware/aws-devops-portfolio).
