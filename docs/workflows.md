@@ -26,7 +26,7 @@ Behavior worth knowing before calling them:
   directories with `*.tftest.hcl` files; use mock providers for them. TFLint reads `.tflint.hcl` from the root.
 - `container` builds with `load: true` and never pushes. Hadolint reads the caller's `.hadolint.yaml`.
 - `helm` adds the HTTP repositories listed under `dependencies` in `Chart.yaml`, builds dependencies, then lints and
-  renders each chart once per `ci/*-values.yaml` file (or once with default values) for `kubernetes-version` and
+  renders each chart once with its default values and once per `ci/*-values.yaml` file for `kubernetes-version`, and
   validates the output with kubeconform in strict mode.
 - `report` builds the PDF with the `pandoc/latex` image pinned by digest and uploads it as an artifact. With
   `evidence-command` set, it reruns that command and fails if `evidence-path` differs from the commit.

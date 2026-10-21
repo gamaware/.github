@@ -19,6 +19,9 @@ This file records all notable changes to this repository. The format follows
 
 ### Fixed
 
+- `helm`: charts with `ci/*-values.yaml` files are also linted and validated with their default values, so a chart
+  whose own `values.yaml` breaks fails the check. `make test-helm` and the `test-helm` CI job cover it with a fixture
+  chart.
 - `report`: the evidence check compares against `HEAD`, so evidence the command staged still fails the check.
 - `security`: a Checkov config file with no `directory` or `file` key scans the repository instead of nothing.
 - `terraform`: `terraform test` runs when test files exist where Terraform loads them (the root or `tests/`).
