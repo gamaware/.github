@@ -8,3 +8,6 @@ updates:
       prefix: ci
     cooldown:
       default-days: 7
+    groups:
+      github-actions-all:
+        patterns: ["*"]
