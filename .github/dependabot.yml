@@ -11,3 +11,4 @@ updates:
     groups:
       github-actions-all:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
